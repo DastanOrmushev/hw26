@@ -9,9 +9,9 @@ public class Main {
             FileUtil fileRead = new FileUtil(fileDirectory);
             fileRead.printAllMovies();
             System.out.println("==============================================================");
-            fileRead.sortMoviesByDirector();
+            //  fileRead.sortMoviesByDirector();
             System.out.println("==============================================================");
-            fileRead.sortMoviesByDirectorDescending();
+            fileRead.printAllActorsAndRoles();
         } catch (IOException io) {
             io.printStackTrace();
         }

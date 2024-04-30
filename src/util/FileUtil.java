@@ -2,13 +2,13 @@ package util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import model.Cast;
 import model.Movie;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class FileUtil {
     private List<Movie> movies;
@@ -78,7 +78,66 @@ public class FileUtil {
         printAllMovies();
     }
 
+    public void searchMoviesByActor(String actorName) {
+        List<Movie> moviesWithActor = new ArrayList<>();
+        for (Movie movie : movies) {
+            for (Cast cast : movie.getCast()) {
+                if (cast.getFullName().equalsIgnoreCase(actorName)) {
+                    moviesWithActor.add(movie);
+                    break;
+                }
+            }
+        }
+        for (Movie movie : moviesWithActor) {
+            System.out.println(movie);
+        }
+    }
 
+    public void searchMoviesByYear(int year) {
+        List<Movie> moviesByYear = new ArrayList<>();
+        for (Movie movie : movies) {
+            if (movie.getYear() == year) {
+                moviesByYear.add(movie);
+            }
+        }
+        for (Movie movie : moviesByYear) {
+            System.out.println(movie);
+        }
+    }
 
+    public void searchMoviesAndRolesByActor(String actorName) {
+        for (Movie movie : movies) {
+            for (Cast cast : movie.getCast()) {
+                if (cast.getFullName().equalsIgnoreCase(actorName)) {
+                    System.out.print(movie.getName() + " - " + cast.getRole());
+                }
+            }
+        }
+    }
 
+    public void printAllActorsAndRoles() {
+        Map<String, Set<String>> actorsAndRoles = new TreeMap<>();
+        for (Movie movie : movies) {
+            for (Cast cast : movie.getCast()) {
+                String fullName = cast.getFullName();
+                String role = movie.getName() + " - " + cast.getRole();
+                Set<String> roles = actorsAndRoles.get(fullName);
+                if (roles == null) {
+                    roles = new TreeSet<>();
+                    actorsAndRoles.put(fullName, roles);
+                }
+                roles.add(role);
+            }
+        }
+        for (Map.Entry<String, Set<String>> entry : actorsAndRoles.entrySet()) {
+            String actor = entry.getKey();
+            Set<String> roles = entry.getValue();
+            StringBuilder roleString = new StringBuilder();
+            for (String role : roles) {
+                roleString.append(role).append(", ");
+            }
+            roleString.delete(roleString.length() - 2, roleString.length());
+            System.out.println(actor + ": " + roleString);
+        }
+    }
 }
