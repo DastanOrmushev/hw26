@@ -2,7 +2,6 @@ package util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import model.Cast;
 import model.Movie;
 
 import java.io.FileReader;
@@ -27,117 +26,107 @@ public class FileUtil {
     }
 
     public void searchMoviesByTitle(String title) {
-        for (Movie movie : movies) {
+        movies.forEach(movie -> {
             if (movie.getName().toLowerCase().contains(title.toLowerCase())) {
                 System.out.println(movie);
             }
-        }
+        });
     }
 
     public void sortMoviesByYear() {
-        movies.sort(Comparator.comparingInt(Movie::getYear));
+        movies.sort(new Comparator<Movie>() {
+            @Override
+            public int compare(Movie m1, Movie m2) {
+                return Integer.compare(m1.getYear(), m2.getYear());
+            }
+        });
         printAllMovies();
     }
 
     public void sortMoviesByYearDescending() {
-        movies.sort(Comparator.comparingInt(Movie::getYear).reversed());
+        movies.sort(new Comparator<Movie>() {
+            @Override
+            public int compare(Movie m1, Movie m2) {
+                return Integer.compare(m2.getYear(), m1.getYear());
+            }
+        });
         printAllMovies();
     }
 
-
     public void sortMoviesByName() {
-        movies.sort(Comparator.comparing(Movie::getName, String.CASE_INSENSITIVE_ORDER));
+        movies.sort(new Comparator<Movie>() {
+            @Override
+            public int compare(Movie m1, Movie m2) {
+                return m1.getName().compareToIgnoreCase(m2.getName());
+            }
+        });
         printAllMovies();
     }
 
     public void sortMoviesByNameDescending() {
-        movies.sort(Comparator.comparing(Movie::getName, String.CASE_INSENSITIVE_ORDER).reversed());
-        printAllMovies();
-    }
-
-
-    public void sortMoviesByDirector() {
         movies.sort(new Comparator<Movie>() {
             @Override
             public int compare(Movie m1, Movie m2) {
-                return m1.getDirector().getFullName().compareToIgnoreCase(m2.getDirector().getFullName());
+                return m2.getName().compareToIgnoreCase(m1.getName());
             }
         });
+        printAllMovies();
+    }
 
+    public void sortMoviesByDirector() {
+        movies.sort(Comparator.comparing(movie -> movie.getDirector().getFullName().toLowerCase()));
         printAllMovies();
     }
 
     public void sortMoviesByDirectorDescending() {
-        movies.sort(new Comparator<Movie>() {
-            @Override
-            public int compare(Movie m1, Movie m2) {
-                return m2.getDirector().getFullName().compareToIgnoreCase(m1.getDirector().getFullName());
-            }
-        });
-
+        movies.sort(Comparator.comparing((Movie movie) -> movie.getDirector().getFullName().toLowerCase()).reversed());
         printAllMovies();
     }
 
     public void searchMoviesByActor(String actorName) {
-        List<Movie> moviesWithActor = new ArrayList<>();
-        for (Movie movie : movies) {
-            for (Cast cast : movie.getCast()) {
+        movies.forEach(movie -> {
+            movie.getCast().forEach(cast -> {
                 if (cast.getFullName().equalsIgnoreCase(actorName)) {
-                    moviesWithActor.add(movie);
-                    break;
+                    System.out.println(movie);
                 }
-            }
-        }
-        for (Movie movie : moviesWithActor) {
-            System.out.println(movie);
-        }
+            });
+        });
     }
 
     public void searchMoviesByYear(int year) {
-        List<Movie> moviesByYear = new ArrayList<>();
-        for (Movie movie : movies) {
+        movies.forEach(movie -> {
             if (movie.getYear() == year) {
-                moviesByYear.add(movie);
+                System.out.println(movie);
             }
-        }
-        for (Movie movie : moviesByYear) {
-            System.out.println(movie);
-        }
+        });
     }
 
     public void searchMoviesAndRolesByActor(String actorName) {
-        for (Movie movie : movies) {
-            for (Cast cast : movie.getCast()) {
+        movies.forEach(movie -> {
+            movie.getCast().forEach(cast -> {
                 if (cast.getFullName().equalsIgnoreCase(actorName)) {
-                    System.out.print(movie.getName() + " - " + cast.getRole());
+                    System.out.println(movie.getName() + " - " + cast.getRole());
                 }
-            }
-        }
+            });
+        });
     }
 
     public void printAllActorsAndRoles() {
         Map<String, Set<String>> actorsAndRoles = new TreeMap<>();
-        for (Movie movie : movies) {
-            for (Cast cast : movie.getCast()) {
+        movies.forEach(movie -> {
+            movie.getCast().forEach(cast -> {
                 String fullName = cast.getFullName();
                 String role = movie.getName() + " - " + cast.getRole();
-                Set<String> roles = actorsAndRoles.get(fullName);
-                if (roles == null) {
-                    roles = new TreeSet<>();
-                    actorsAndRoles.put(fullName, roles);
-                }
+                Set<String> roles = actorsAndRoles.computeIfAbsent(fullName, k -> new TreeSet<>());
                 roles.add(role);
-            }
-        }
-        for (Map.Entry<String, Set<String>> entry : actorsAndRoles.entrySet()) {
-            String actor = entry.getKey();
-            Set<String> roles = entry.getValue();
+            });
+        });
+
+        actorsAndRoles.forEach((actor, roles) -> {
             StringBuilder roleString = new StringBuilder();
-            for (String role : roles) {
-                roleString.append(role).append(", ");
-            }
+            roles.forEach(role -> roleString.append(role).append(", "));
             roleString.delete(roleString.length() - 2, roleString.length());
             System.out.println(actor + ": " + roleString);
-        }
+        });
     }
 }

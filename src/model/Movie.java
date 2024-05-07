@@ -25,9 +25,6 @@ public class Movie {
         return year;
     }
 
-    public String getDescription() {
-        return description;
-    }
 
     public Director getDirector() {
         return director;
